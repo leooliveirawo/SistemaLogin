@@ -1,17 +1,17 @@
 ﻿using SistemaLogin.App.Data.Entidades;
+using SistemaLogin.App.Data.Modelos;
 
 namespace SistemaLogin.App.Data.Servicos.Interfaces
 {
     public interface IServicoUsuarios
     {
-        void Alterar(Usuario usuario);
-        void AlterarSenha(long id, string senha);
-        void Criar(Usuario usuario, string senha);
+        void Alterar(ModeloUsuarioEditar modelo);
+        void Criar(ModeloUsuarioCriar modelo);
         void Excluir(long id);
         string GerarNovoToken(string token);
         string Login(string nomeUsuario, string senha);
-        Usuario? ObterPorId(long id, bool somenteLeitura = true);
-        IEnumerable<Usuario> ObterTudo();
+        ModeloUsuarioDetalhes? ObterPorId(long id);
+        IEnumerable<ModeloUsuarioTabela> ObterTudo();
         bool VerificarUsuarioCadastrado();
         bool VerificarToken(string token);
     }

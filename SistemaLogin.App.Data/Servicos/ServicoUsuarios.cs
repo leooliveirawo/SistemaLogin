@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using SistemaLogin.App.Data.Entidades;
+using SistemaLogin.App.Data.Modelos;
 using SistemaLogin.App.Data.Servicos.Interfaces;
 using SistemaLogin.App.Data.Valores;
 
@@ -24,49 +25,51 @@ namespace SistemaLogin.App.Data.Servicos
             this.servicoCriptografia = servicoCriptografia ?? throw new ArgumentNullException(nameof(servicoCriptografia));
         }
 
-        public void Alterar(Usuario usuario)
+        public void Alterar(ModeloUsuarioEditar modelo)
         {
-            if (usuario is null)
-                throw new ArgumentNullException(nameof(usuario));
+            if (modelo is null)
+                throw new ArgumentNullException(nameof(modelo));
 
-            if (string.IsNullOrWhiteSpace(usuario.NomeUsuario))
+            if (modelo.Id <= 0)
+                throw new InvalidOperationException("O Id do usuário não foi informado");
+
+            if (string.IsNullOrWhiteSpace(modelo.NomeUsuario))
                 throw new InvalidOperationException("O nome de usuário não foi informado");
 
-            if (string.IsNullOrWhiteSpace(usuario.HashSenha))
-                throw new InvalidOperationException("O hash da senha não foi informado");
+            if (modelo.AlterarSenha
+                && string.IsNullOrWhiteSpace(modelo.Senha))
+                throw new InvalidOperationException("A senha não foi informada");
+
+            var usuario = dbContext.Find<Usuario>(modelo.Id);
+
+            if (usuario is null)
+                throw new InvalidOperationException($"O usuário de Id \"{modelo.Id}\" não foi encontrado");
+
+            #nullable disable
+            if (modelo.AlterarSenha)
+                usuario.HashSenha = servicoHash.GerarHash(modelo.Senha);
+            #nullable enable
 
             dbContext.Update(usuario);
             dbContext.SaveChanges();
         }
 
-        public void AlterarSenha(long id, string senha)
+        public void Criar(ModeloUsuarioCriar modelo)
         {
-            if (string.IsNullOrWhiteSpace(senha))
-                throw new InvalidOperationException("A senha não foi informada");
+            if (modelo is null)
+                throw new ArgumentNullException(nameof(modelo));
 
-            var usuario = dbContext.Find<Usuario>(id);
-
-            if (usuario is null)
-                throw new InvalidOperationException($"O usuário de Id \"{id}\" não foi encontrado");
-
-            usuario.HashSenha = servicoHash.GerarHash(senha);
-
-            dbContext.Update(usuario);
-            dbContext.SaveChanges();
-        }
-
-        public void Criar(Usuario usuario, string senha)
-        {
-            if (usuario is null)
-                throw new ArgumentNullException(nameof(usuario));
-
-            if (string.IsNullOrWhiteSpace(usuario.NomeUsuario))
+            if (string.IsNullOrWhiteSpace(modelo.NomeUsuario))
                 throw new InvalidOperationException("O nome de usuário não foi informado");
 
-            if (string.IsNullOrWhiteSpace(senha))
+            if (string.IsNullOrWhiteSpace(modelo.Senha))
                 throw new InvalidOperationException("A senha não foi informada");
 
-            usuario.HashSenha = servicoHash.GerarHash(senha);
+            var usuario = new Usuario
+            {
+                NomeUsuario = modelo.NomeUsuario,
+                HashSenha = servicoHash.GerarHash(modelo.Senha)
+            };
 
             dbContext.Add(usuario);
             dbContext.SaveChanges();
@@ -139,17 +142,28 @@ namespace SistemaLogin.App.Data.Servicos
             throw new SecurityException("O nome de usuário e senha não são válidos");
         }
 
-        public Usuario? ObterPorId(long id, bool somenteLeitura = true)
+        public ModeloUsuarioDetalhes? ObterPorId(long id)
         {
-            if (somenteLeitura)
-                return dbContext.Set<Usuario>().AsNoTracking().FirstOrDefault(x => x.Id == id);
-            else
-                return dbContext.Set<Usuario>().FirstOrDefault(x => x.Id == id);
+            return dbContext.Set<Usuario>()
+                .AsNoTracking()
+                .Where(x => x.Id == id)
+                .Select(x => new ModeloUsuarioDetalhes
+                {
+                    NomeUsuario = x.NomeUsuario
+                })
+                .SingleOrDefault();
         }
 
-        public IEnumerable<Usuario> ObterTudo()
+        public IEnumerable<ModeloUsuarioTabela> ObterTudo()
         {
-            return dbContext.Set<Usuario>().AsNoTracking().ToList();
+            return dbContext.Set<Usuario>()
+                .AsNoTracking()
+                .Select(x => new ModeloUsuarioTabela
+                {
+                    Id = x.Id,
+                    NomeUsuario = x.NomeUsuario
+                })
+                .ToList();
         }
 
         public bool VerificarToken(string token)

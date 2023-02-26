@@ -1,4 +1,4 @@
-﻿using SistemaLogin.App.Data.Entidades;
+﻿using SistemaLogin.App.Data.Modelos;
 using SistemaLogin.App.Data.Servicos.Interfaces;
 
 namespace SistemaLogin.App
@@ -75,7 +75,7 @@ namespace SistemaLogin.App
                 chbxAlterarSenha.Checked = false;
                 chbxAlterarSenha.Visible = false;
 
-                btnExcluir.Visible = false;
+                btnExcluir.Visible = true;
                 btnNovoEditarSalvar.Text = "Editar";
                 gbxDados.Enabled = false;
 
@@ -117,12 +117,13 @@ namespace SistemaLogin.App
                 {
                     if (id == 0)
                     {
-                        var usuario = new Usuario()
+                        var modelo = new ModeloUsuarioCriar()
                         {
                             NomeUsuario = txtNomeUsuario.Text,
+                            Senha = txtNomeUsuario.Text,
                         };
 
-                        servicoUsuarios.Criar(usuario, txtSenha.Text);
+                        servicoUsuarios.Criar(modelo);
 
                         DefinirModoAtual(Modos.Padrao);
 
@@ -131,26 +132,18 @@ namespace SistemaLogin.App
                     }
                     else
                     {
-                        var usuario = servicoUsuarios.ObterPorId(id);
-
-                        if (usuario is null)
+                        var modelo = new ModeloUsuarioEditar()
                         {
-                            id = 0;
-                            txtNomeUsuario.Clear();
-
-                            DefinirModoAtual(Modos.Padrao);
-
-                            MessageBox.Show(this, "O usuário não foi encontrado.");
-
-                            return;
-                        }
-
-                        usuario.NomeUsuario = txtNomeUsuario.Text;
-
-                        servicoUsuarios.Alterar(usuario);
+                            NomeUsuario = txtNomeUsuario.Text
+                        };
 
                         if (chbxAlterarSenha.Checked)
-                            servicoUsuarios.AlterarSenha(usuario.Id, txtSenha.Text);
+                        {
+                            modelo.AlterarSenha = true;
+                            modelo.Senha = txtSenha.Text;
+                        }
+                        
+                        servicoUsuarios.Alterar(modelo);
 
                         DefinirModoAtual(Modos.Visualizar);
 
@@ -180,9 +173,9 @@ namespace SistemaLogin.App
             {
                 try
                 {
-                    var usuario = servicoUsuarios.ObterPorId(id);
+                    var modelo = servicoUsuarios.ObterPorId(id);
 
-                    if (usuario is null)
+                    if (modelo is null)
                     {
                         id = 0;
                         txtNomeUsuario.Clear();
@@ -196,7 +189,7 @@ namespace SistemaLogin.App
                         return;
                     }
 
-                    txtNomeUsuario.Text = usuario.NomeUsuario;
+                    txtNomeUsuario.Text = modelo.NomeUsuario;
 
                     DefinirModoAtual(Modos.Visualizar);
 
@@ -221,28 +214,17 @@ namespace SistemaLogin.App
         {
             try
             {
-                var usuario = servicoUsuarios.ObterPorId(id);
-
-                if (usuario is null)
+                if (MessageBox.Show(this, "Deseja realmente excluir o usuário?", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    MessageBox.Show(this, "O usuário não foi encontrado.");
+                    servicoUsuarios.Excluir(id);
 
+                    id = 0;
                     txtNomeUsuario.Clear();
 
                     DefinirModoAtual(Modos.Padrao);
 
                     RecarregarUsuarios();
-
-                    return;
                 }
-
-                servicoUsuarios.Excluir(id);
-
-                txtNomeUsuario.Text = usuario.NomeUsuario;
-                
-                DefinirModoAtual(Modos.Padrao);
-
-                RecarregarUsuarios();
             }
             catch (Exception ex)
             {
@@ -256,18 +238,20 @@ namespace SistemaLogin.App
             {
                 try
                 {
-                    var usuario = servicoUsuarios.ObterPorId((long)dgvUsuarios[0, e.RowIndex].Value);
+                    var id = (long)dgvUsuarios[0, e.RowIndex].Value;
 
-                    if (usuario is null)
+                    var modelo = servicoUsuarios.ObterPorId(id);
+
+                    if (modelo is null)
                     {
                         MessageBox.Show(this, "O usuário não foi encontrado.");
 
                         return;
                     }
 
-                    id = usuario.Id;
+                    this.id = id;
 
-                    txtNomeUsuario.Text = usuario.NomeUsuario;
+                    txtNomeUsuario.Text = modelo.NomeUsuario;
 
                     DefinirModoAtual(Modos.Visualizar);
 
