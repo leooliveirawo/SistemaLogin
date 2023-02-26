@@ -120,7 +120,7 @@ namespace SistemaLogin.App
                         var modelo = new ModeloUsuarioCriar()
                         {
                             NomeUsuario = txtNomeUsuario.Text,
-                            Senha = txtNomeUsuario.Text,
+                            Senha = txtSenha.Text,
                         };
 
                         servicoUsuarios.Criar(modelo);
@@ -134,6 +134,7 @@ namespace SistemaLogin.App
                     {
                         var modelo = new ModeloUsuarioEditar()
                         {
+                            Id = id,
                             NomeUsuario = txtNomeUsuario.Text
                         };
 
