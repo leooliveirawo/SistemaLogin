@@ -8,21 +8,24 @@ using SistemaLogin.App.Data.Valores;
 using System.Security;
 using System.Text.Json;
 
+using WZSISTEMAS.Data.Criptografia.Interfaces;
+
 namespace SistemaLogin.App.Data.Servicos
 {
     public class ServicoUsuarios : IServicoUsuarios
     {
-        private const string chaveCriptografia = "1234567812345678";
+        private const string iv = "1234567812345678";
+        private const string chaveCriptografia = "12345678123456781234567812345678";
 
         private readonly DbContext dbContext;
         private readonly IServicoHash servicoHash;
-        private readonly IServicoCriptografia servicoCriptografia;
+        private readonly IProvedorCriptografia provedorCriptografia;
 
-        public ServicoUsuarios(DbContext dbContext, IServicoHash servicoHash, IServicoCriptografia servicoCriptografia)
+        public ServicoUsuarios(DbContext dbContext, IServicoHash servicoHash, IProvedorCriptografia provedorCriptografia)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             this.servicoHash = servicoHash ?? throw new ArgumentNullException(nameof(servicoHash));
-            this.servicoCriptografia = servicoCriptografia ?? throw new ArgumentNullException(nameof(servicoCriptografia));
+            this.provedorCriptografia = provedorCriptografia ?? throw new ArgumentNullException(nameof(provedorCriptografia));
         }
 
         public void Alterar(ModeloUsuarioEditar modelo)
@@ -93,7 +96,7 @@ namespace SistemaLogin.App.Data.Servicos
 
             if (VerificarToken(token))
             {
-                var tokenDescriptografado = servicoCriptografia.Descriptografar(chaveCriptografia, token);
+                var tokenDescriptografado = provedorCriptografia.Descriptografar(chaveCriptografia, iv, token);
 
                 var tokenI = JsonSerializer.Deserialize<Token>(tokenDescriptografado);
 
@@ -109,7 +112,7 @@ namespace SistemaLogin.App.Data.Servicos
 
                 var novoToken = JsonSerializer.Serialize(novoTokenI);
 
-                return servicoCriptografia.Criptografar(chaveCriptografia, novoToken);
+                return provedorCriptografia.Criptografar(chaveCriptografia, iv, novoToken);
             }
 
             throw new InvalidOperationException("O token expirou");
@@ -136,7 +139,7 @@ namespace SistemaLogin.App.Data.Servicos
 
                 var texto = JsonSerializer.Serialize(token);
 
-                return servicoCriptografia.Criptografar(chaveCriptografia, JsonSerializer.Serialize(token));
+                return provedorCriptografia.Criptografar(chaveCriptografia, iv, JsonSerializer.Serialize(token));
             }
 
             throw new SecurityException("O nome de usuário e senha não são válidos");
@@ -171,7 +174,7 @@ namespace SistemaLogin.App.Data.Servicos
             if (string.IsNullOrWhiteSpace(token))
                 throw new InvalidOperationException("O token não é válido");
 
-            var tokenDescriptografado = servicoCriptografia.Descriptografar(chaveCriptografia, token);
+            var tokenDescriptografado = provedorCriptografia.Descriptografar(chaveCriptografia, iv, token);
 
             var tokenI = JsonSerializer.Deserialize<Token>(tokenDescriptografado);
 

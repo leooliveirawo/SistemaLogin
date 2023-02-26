@@ -3,6 +3,8 @@
 using SistemaLogin.App.Data.Servicos;
 using SistemaLogin.App.Data.Servicos.Interfaces;
 
+using WZSISTEMAS.Data.Criptografia;
+
 namespace SistemaLogin.App.Data
 {
     public class DataProvider
@@ -16,7 +18,7 @@ namespace SistemaLogin.App.Data
 
         public IServicoUsuarios ObterServicoUsuarios()
         {
-            return new ServicoUsuarios(dbContext, new ServicoHash(), new ServicoCriptografia());
+            return new ServicoUsuarios(dbContext, new ServicoHash(), new ProvedorAes());
         }
     }
 }
