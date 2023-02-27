@@ -1,5 +1,4 @@
 using SistemaLogin.App.Data;
-using SistemaLogin.App.Data.Servicos;
 
 namespace SistemaLogin.App
 {
@@ -19,7 +18,7 @@ namespace SistemaLogin.App
 
             while (true)
             {
-                if (!DataProvider.ObterServicoUsuarios().VerificarUsuarioCadastrado())
+                if (!DataProvider.ObterServicoUsuarios().VerificarUsuarioExiste())
                 {
                     if (MessageBox.Show("É necessário criar um novo usuario. Deseja criar?", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                         Application.Run(new FrmTelaCadastroUsuario());

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaLogin.App.Data;
 
@@ -10,9 +11,11 @@ using SistemaLogin.App.Data;
 namespace SistemaLogin.App.Data.Migrations
 {
     [DbContext(typeof(SistemaLoginDbContext))]
-    partial class SistemaLoginDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230227150455_rv2")]
+    partial class rv2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using SistemaLogin.App.Data.Servicos;
-using SistemaLogin.App.Data.Servicos.Interfaces;
-
+using WZSISTEMAS.Data.Autenticacao;
+using WZSISTEMAS.Data.Autenticacao.Interfaces;
 using WZSISTEMAS.Data.Criptografia;
 
 namespace SistemaLogin.App.Data
@@ -16,9 +15,17 @@ namespace SistemaLogin.App.Data
             dbContext = new SistemaLoginDbContext();
         }
 
-        public IServicoUsuarios ObterServicoUsuarios()
+        public IServicoUsuarios<Usuario> ObterServicoUsuarios()
         {
-            return new ServicoUsuarios(dbContext, new ServicoHash(), new ProvedorAes());
+            return new ServicoUsuarios<Usuario>(
+                new RepositorioUsuarios(dbContext),
+                new ProvedorSHA256(),
+                new ProvedorAes(),
+                new DadosCriptografiaAutenticacao
+                {
+                    Chave = "12345678123456781234567812345678",
+                    IV = "1234567812345678"
+                });
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using SistemaLogin.App.Data.Modelos;
-using SistemaLogin.App.Data.Servicos.Interfaces;
+﻿using WZSISTEMAS.Data.Autenticacao;
+using WZSISTEMAS.Data.Autenticacao.Interfaces;
 
 namespace SistemaLogin.App
 {
@@ -13,7 +13,7 @@ namespace SistemaLogin.App
             Criar
         }
 
-        private readonly IServicoUsuarios servicoUsuarios;
+        private readonly IServicoUsuarios<Usuario> servicoUsuarios;
         private long id;
         private Modos modoAtual;
 
@@ -31,7 +31,7 @@ namespace SistemaLogin.App
             dgvUsuarios.Rows.Clear();
 
             foreach (var usuario in usuarios)
-                dgvUsuarios.Rows.Add(usuario.Id, usuario.NomeUsuario);
+                dgvUsuarios.Rows.Add(usuario.Id, usuario.NomeUsuario, usuario.Email);
 
             if (dgvUsuarios.Rows.Count > 0)
             {
@@ -117,13 +117,13 @@ namespace SistemaLogin.App
                 {
                     if (id == 0)
                     {
-                        var modelo = new ModeloUsuarioCriar()
+                        var usuario = new Usuario()
                         {
                             NomeUsuario = txtNomeUsuario.Text,
-                            Senha = txtSenha.Text,
+                            Email = txtEmail.Text,
                         };
 
-                        servicoUsuarios.Criar(modelo);
+                        servicoUsuarios.Criar(usuario, txtSenha.Text);
 
                         DefinirModoAtual(Modos.Padrao);
 
@@ -132,19 +132,22 @@ namespace SistemaLogin.App
                     }
                     else
                     {
-                        var modelo = new ModeloUsuarioEditar()
+                        var usuario = servicoUsuarios.ObterPorId(id);
+
+                        if (usuario is null)
                         {
-                            Id = id,
-                            NomeUsuario = txtNomeUsuario.Text
-                        };
+                            MessageBox.Show(this, "O usuário não foi encontrado.");
+
+                            return;
+                        }
+
+                        usuario.NomeUsuario = txtNomeUsuario.Text;
+                        usuario.Email = txtEmail.Text;
 
                         if (chbxAlterarSenha.Checked)
-                        {
-                            modelo.AlterarSenha = true;
-                            modelo.Senha = txtSenha.Text;
-                        }
-                        
-                        servicoUsuarios.Alterar(modelo);
+                            servicoUsuarios.AlterarSenha(usuario, txtSenha.Text);
+                        else
+                            servicoUsuarios.Alterar(usuario);
 
                         DefinirModoAtual(Modos.Visualizar);
 
@@ -167,6 +170,7 @@ namespace SistemaLogin.App
             if (modoAtual == Modos.Criar)
             {
                 txtNomeUsuario.Clear();
+                txtEmail.Clear();
 
                 DefinirModoAtual(Modos.Padrao);
             }
@@ -174,12 +178,13 @@ namespace SistemaLogin.App
             {
                 try
                 {
-                    var modelo = servicoUsuarios.ObterPorId(id);
+                    var usuario = servicoUsuarios.ObterPorId(id);
 
-                    if (modelo is null)
+                    if (usuario is null)
                     {
                         id = 0;
                         txtNomeUsuario.Clear();
+                        txtEmail.Clear();
 
                         DefinirModoAtual(Modos.Padrao);
 
@@ -190,7 +195,8 @@ namespace SistemaLogin.App
                         return;
                     }
 
-                    txtNomeUsuario.Text = modelo.NomeUsuario;
+                    txtNomeUsuario.Text = usuario.NomeUsuario;
+                    txtEmail.Text = usuario.Email;
 
                     DefinirModoAtual(Modos.Visualizar);
 
@@ -206,6 +212,7 @@ namespace SistemaLogin.App
                 id = 0;
 
                 txtNomeUsuario.Clear();
+                txtEmail.Clear();
 
                 DefinirModoAtual(Modos.Padrao);
             }
@@ -221,6 +228,7 @@ namespace SistemaLogin.App
 
                     id = 0;
                     txtNomeUsuario.Clear();
+                    txtEmail.Clear();
 
                     DefinirModoAtual(Modos.Padrao);
 
@@ -241,9 +249,9 @@ namespace SistemaLogin.App
                 {
                     var id = (long)dgvUsuarios[0, e.RowIndex].Value;
 
-                    var modelo = servicoUsuarios.ObterPorId(id);
+                    var usuario = servicoUsuarios.ObterPorId(id);
 
-                    if (modelo is null)
+                    if (usuario is null)
                     {
                         MessageBox.Show(this, "O usuário não foi encontrado.");
 
@@ -252,7 +260,8 @@ namespace SistemaLogin.App
 
                     this.id = id;
 
-                    txtNomeUsuario.Text = modelo.NomeUsuario;
+                    txtNomeUsuario.Text = usuario.NomeUsuario;
+                    txtEmail.Text = usuario.Email;
 
                     DefinirModoAtual(Modos.Visualizar);
 

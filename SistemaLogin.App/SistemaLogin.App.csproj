@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="WZSISTEMAS.Data.Criptografia" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SistemaLogin.App.Data\SistemaLogin.App.Data.csproj" />
   </ItemGroup>
 

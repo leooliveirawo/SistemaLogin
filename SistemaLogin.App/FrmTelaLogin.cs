@@ -1,10 +1,11 @@
-using SistemaLogin.App.Data.Servicos.Interfaces;
+using WZSISTEMAS.Data.Autenticacao;
+using WZSISTEMAS.Data.Autenticacao.Interfaces;
 
 namespace SistemaLogin.App
 {
     public partial class FrmTelaLogin : Form
     {
-        private readonly IServicoUsuarios servicoUsuarios;
+        private readonly IServicoUsuarios<Usuario> servicoUsuarios;
 
         public FrmTelaLogin()
         {
@@ -32,7 +33,7 @@ namespace SistemaLogin.App
         {
             try
             {
-                var token = servicoUsuarios.Login(txtNomeUsuario.Text, txtSenha.Text);
+                var token = servicoUsuarios.Autenticar(txtNomeUsuario.Text, txtSenha.Text);
 
                 panel1.Visible = false;
                 menuStrip1.Visible = true;

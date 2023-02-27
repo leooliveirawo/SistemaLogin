@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using SistemaLogin.App.Data.Entidades;
+using WZSISTEMAS.Data.Autenticacao;
 
 namespace SistemaLogin.App.Data.Mapeamentos
 {
