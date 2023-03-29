@@ -33,6 +33,12 @@ namespace SistemaLogin.App.Data.Mapeamentos
                 .HasColumnType("VARCHAR")
                 .HasMaxLength(135)
                 .IsRequired();
+
+            builder.Property(x => x.Email)
+                .HasColumnName("EMAIL")
+                .HasColumnType("VARCHAR")
+                .HasMaxLength(255)
+                .IsRequired();
         }
     }
 }

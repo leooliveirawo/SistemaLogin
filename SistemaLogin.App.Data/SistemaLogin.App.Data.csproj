@@ -18,7 +18,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="WZSISTEMAS.Data.Autenticacao" Version="1.0.0" />
+    <PackageReference Include="WZSISTEMAS.Data.Autenticacao" Version="1.0.2" />
     <PackageReference Include="WZSISTEMAS.Data.Criptografia" Version="1.0.1" />
   </ItemGroup>
 
